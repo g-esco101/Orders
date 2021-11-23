@@ -5,6 +5,7 @@ import com.goviesco.orders.entity.Order;
 import com.goviesco.orders.enumeration.Status;
 import com.goviesco.orders.exception.OrderNotFoundException;
 import com.goviesco.orders.repository.OrderRepository;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -13,7 +14,14 @@ import org.springframework.hateoas.mediatype.problem.Problem;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -31,14 +39,19 @@ public class OrderController {
 
     // CollectionModel<> is another Spring HATEOAS container that encapsulates collections of resources, instead of a single
     // resource entity, like EntityModel<>. It also lets you include links.
+    @ApiOperation(value = "Retrieves all orders",
+            notes = "Orders with status set to PROCESSING will contain links to change status to COMPLETED " +
+                    "and CANCELED. Status cannot be changed if it is set to COMPLETED or CANCELED.")
     @GetMapping("/orders")
     public ResponseEntity<CollectionModel<EntityModel<Order>>> readAll() {
         return ResponseEntity.ok(assembler.toCollectionModel(repository.findAll())
                 .add(linkTo(methodOn(OrderController.class).readAll()).withSelfRel()));
     }
 
+    @ApiOperation(value="Creates an order",
+            notes="All orders are created with status set to PROCESSING.")
     @PostMapping("/orders")
-    public ResponseEntity<EntityModel<Order>> create(@RequestBody Order order) {
+    public ResponseEntity<EntityModel<Order>> create(@Valid @RequestBody Order order) {
         order.setStatus(Status.PROCESSING);
         Order newOrder = repository.save(order);
 
@@ -47,6 +60,9 @@ public class OrderController {
                 .body(assembler.toModel(newOrder));
     }
 
+    @ApiOperation(value = "Retrieves the order with the id or else throws OrderNotFoundException",
+                    notes = "Orders with status set to PROCESSING will contain links to change status to COMPLETED " +
+                            "and CANCELED. Status cannot be changed if it is set to COMPLETED or CANCELED.")
     @GetMapping("/orders/{id}")
     public ResponseEntity<EntityModel<Order>> read(@PathVariable Long id) {
         return repository.findById(id)
@@ -55,8 +71,9 @@ public class OrderController {
                 .orElseThrow(() -> new OrderNotFoundException(id));
     }
 
+    @ApiOperation(value = "Updates the order with the id or else throws OrderNotFoundException")
     @PutMapping("/orders/{id}")
-    public ResponseEntity<?> update(@RequestBody Order newOrder, @PathVariable Long id) {
+    public ResponseEntity<?> update(@Valid @RequestBody Order newOrder, @PathVariable Long id) {
         Order updatedOrder = repository.findById(id)
                 .map(order -> {
                     order.setStatus(newOrder.getStatus());
@@ -77,6 +94,7 @@ public class OrderController {
                 .body(entityModel);
     }
 
+    @ApiOperation(value = "Removes the order with the id or else throws OrderNotFoundException")
     @DeleteMapping("/orders/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Order order = repository.findById(id)
@@ -86,6 +104,8 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
+    @ApiOperation(value = "Changes the status of the order with the id from PROCESSING to CANCELED or else throws OrderNotFoundException",
+            notes = "If the status is not set to PROCESSING, this method is not allowed")
     @PutMapping("/orders/{id}/cancel")
     public ResponseEntity<?> cancel(@PathVariable Long id) {
 
@@ -105,6 +125,8 @@ public class OrderController {
                         .withDetail(String.format("Not allowed to cancel an order with status %s", order.getStatus())));
     }
 
+    @ApiOperation(value = "Changes the status of the order with the id from PROCESSING to COMPLETED or else throws OrderNotFoundException",
+            notes = "If the status is not set to PROCESSING, this method is not allowed")
     @PutMapping("/orders/{id}/complete")
     public ResponseEntity<?> complete(@PathVariable Long id) {
 
@@ -122,5 +144,17 @@ public class OrderController {
                 .body(Problem.create()
                         .withTitle("Method not allowed")
                         .withDetail(String.format("Not allowed to complete an order with status %s", order.getStatus())));
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 }

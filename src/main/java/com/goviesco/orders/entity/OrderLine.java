@@ -1,5 +1,6 @@
 package com.goviesco.orders.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ public class OrderLine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(value = "OrderLine Id - auto generated")
     private Long id;
     private String brand;
     private String model;
