@@ -48,7 +48,6 @@ public class Order {
     private List<OrderLine> orderLines;
 
     @Getter @Setter
-    @PositiveOrZero(message = "Tax must be a positive number or zero.")
     private String tax;
 
     @Getter @Setter
