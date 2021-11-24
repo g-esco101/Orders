@@ -146,6 +146,7 @@ public class OrderController {
                         .withDetail(String.format("Not allowed to complete an order with status %s", order.getStatus())));
     }
 
+    // Handles errors in user input.
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
