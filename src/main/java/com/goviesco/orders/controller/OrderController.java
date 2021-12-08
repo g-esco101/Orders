@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +54,7 @@ public class OrderController {
     @PostMapping("/orders")
     public ResponseEntity<EntityModel<Order>> create(@Valid @RequestBody Order order) {
         order.setStatus(Status.PROCESSING);
+        order.setDate(LocalDate.now());
         Order newOrder = repository.save(order);
 
         return ResponseEntity
@@ -79,10 +81,18 @@ public class OrderController {
                     order.setStatus(newOrder.getStatus());
                     order.setFirstName(newOrder.getFirstName());
                     order.setLastName(newOrder.getLastName());
-                    order.setAddress(newOrder.getAddress());
+                    order.setEmail(newOrder.getEmail());
+                    order.setPhone(newOrder.getPhone());
+                    order.setAddress1(newOrder.getAddress1());
+                    order.setAddress2(newOrder.getAddress2());
+                    order.setCity(newOrder.getCity());
+                    order.setState(newOrder.getState());
+                    order.setZip(newOrder.getZip());
                     // Note: the existing list is modified; reassigning it would lead to a persistence exception.
                     order.getOrderLines().clear();
                     order.getOrderLines().addAll(newOrder.getOrderLines());
+                    order.setShipping(newOrder.getShipping());
+                    order.setTax(newOrder.getTax());
                     return repository.save(order);
                 })
                 .orElseThrow(() -> new OrderNotFoundException(id));
