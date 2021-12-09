@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,11 +84,7 @@ public class OrderController {
                     order.setLastName(newOrder.getLastName());
                     order.setEmail(newOrder.getEmail());
                     order.setPhone(newOrder.getPhone());
-                    order.setAddress1(newOrder.getAddress1());
-                    order.setAddress2(newOrder.getAddress2());
-                    order.setCity(newOrder.getCity());
-                    order.setState(newOrder.getState());
-                    order.setZip(newOrder.getZip());
+                    order.setAddress(newOrder.getAddress());
                     // Note: the existing list is modified; reassigning it would lead to a persistence exception.
                     order.getOrderLines().clear();
                     order.getOrderLines().addAll(newOrder.getOrderLines());

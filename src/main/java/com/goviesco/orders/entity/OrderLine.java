@@ -25,20 +25,20 @@ public class OrderLine {
 
     @Size(min = 1, max = 25, message = "Brand must be between 1 and 25 characters, inclusive.")
     @Column(length = 25)
-    @NotBlank(message = "Brand is required")
+    @NotBlank(message = "Brand is required.")
     private String brand;
 
     @Size(min = 1, max = 25, message = "Model must be between 1 and 25 characters, inclusive.")
     @Column(length = 25)
-    @NotBlank(message = "Model is required")
+    @NotBlank(message = "Model is required.")
     private String model;
 
-    @NotNull(message = "Cost is required")
+    @NotNull(message = "Cost is required.")
     @PositiveOrZero(message = "Cost must be positive or zero.")
     private BigDecimal cost;
 
     @NotNull(message = "Quantity is required.")
     @PositiveOrZero(message = "Quantity must be positive or zero.")
-    private int quantity;
+    private Integer quantity;
 
 }

@@ -6,10 +6,12 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @ToString @EqualsAndHashCode
@@ -47,37 +49,20 @@ public class Order {
     @Column(length = 50)
     @NotBlank(message = "Email is required.")
     // Regexp provided by RFC 5322. Allows all characters except | and ' due to sql injection risk.
-    @Email(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$", message = "Email format is invalid")
+    @Email(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$", message = "Email format is invalid.")
     private String email;
 
     @Column(length = 25)
     @Pattern(regexp = "^((\\+\\d{1,3}( )?)?((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4})?$", message = "Phone number format is invalid. Valid formats include (but are not limited to) 2134541324, (213) 454-1324, and +111 (213) 454-1324.")
     private String phone;
 
-    @NotBlank(message = "Address1 is required.")
-    @Size(min = 1, max = 50, message = "Address1 must be between 1 and 50 characters, inclusive.")
-    @Column(length = 50)
-    private String address1;
+    @Valid
+    @NotNull(message = "Address is required.")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Address address;
 
-    @Size(max = 25, message = "Address2 must be between 0 and 25 characters, inclusive.")
-    @Column(length = 25)
-    private String address2;
-
-    @NotBlank(message = "City is required.")
-    @Size(min = 1, max = 50, message = "City must be between 1 and 25 characters, inclusive.")
-    @Column(length = 25)
-    private String city;
-
-    @NotBlank(message = "State is required.")
-    @Size(min = 2, max = 2, message = "State must be 2 characters.")
-    @Column(length = 2)
-    private String state;
-
-    @NotBlank(message = "Zip code is required.")
-    @Size(min = 5, max = 10, message = "Zip code must be between 5 and 10 characters, inclusive.")
-    @Column(length = 10)
-    private String zip;
-
+    @Valid
+    @NotEmpty(message = "Order lines is required.")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderLine> orderLines;
 
@@ -97,20 +82,16 @@ public class Order {
     @ApiModelProperty(value = "Total is calculated.")
     private BigDecimal total;
 
-    public Order(long id, Status status, String firstName, String lastName, String email, String phone, String address1,
-                 String address2, String city, String state, String zip,
+    public Order(long id, Status status, String firstName, String lastName, String email, String phone, Address address,
                  List<OrderLine> orderLines, BigDecimal tax, BigDecimal shipping, BigDecimal subtotal, BigDecimal total) {
+        
         this.id = id;
         this.status = status;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phone = phone;
-        this.address1 = address1;
-        this.address2 = address2;
-        this.city = city;
-        this.state = state;
-        this.zip = zip;
+        this.address = address;
         this.orderLines = orderLines;
         this.tax = tax;
         this.shipping = shipping;
@@ -129,31 +110,7 @@ public class Order {
             subtotal = subtotal.add(lineTotal);
         }
 
-//        orderLines.forEach(line -> {
-//            BigDecimal lineTotal = new BigDecimal(line.getQuantity()).multiply(line.getCost());
-//            temp = temp.add(lineTotal);
-//        });
         this.total = this.subtotal.add(this.tax)
                 .add(this.shipping);
     }
-
-    // Virtual getter for older clients that use name field instead of firstName and lastName.
-//    public String getName() {
-//        return String.format("%s %s", firstName, lastName);
-//    }
-//
-//    // Virtual setter for older clients that use name field instead of firstName and lastName.
-//    public void setName(String name) {
-//        name = name.trim();
-//        // All characters after first space are the lastName. If name is blank, returns String[1] { "" }.
-//        String[] fullName = name.split(" ", 2);
-//        // Will throw MethodArgumentNotValidException with validation message for first name, if name is blank.
-//        setFirstName(fullName[0]);
-//        if (fullName.length < 2) {
-//            // Ensures that MethodArgumentNotValidException is thrown with validation message for lastName.
-//            setLastName("");
-//        } else {
-//            setLastName(fullName[1]);
-//        }
-//    }
 }

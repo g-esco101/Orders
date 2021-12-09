@@ -1,5 +1,6 @@
 package com.goviesco.orders;
 
+import com.goviesco.orders.entity.Address;
 import com.goviesco.orders.entity.Order;
 import com.goviesco.orders.entity.OrderLine;
 import com.goviesco.orders.enumeration.Status;
@@ -41,20 +42,21 @@ public class LoadDatabase {
         orderLines2.add(orderLine5);
         orderLines3.add(orderLine6);
 
-        Order order1 = new Order(1L, LocalDate.of(2019, 4, 28), Status.PROCESSING, "Albert", "Einsten", "albert@gmail.com",
-                "2134541324", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ",
-                "85017", orderLines1, new BigDecimal("200"), new BigDecimal("300"),
-                new BigDecimal("11000"), new BigDecimal("11500"));
+        Address address1 = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+        Address address2 = new Address(2L, "4200 Wilshire Blvd", "", "Los Angeles", "CA", "90025");
+        Address address3 = new Address(3L, "4545 Wilshire Blvd", "Apt 3", "Los Angeles", "CA", "90025");
 
-        Order order2 = new Order(2L, LocalDate.of(2020, 5, 20), Status.COMPLETED, "Stephen", "Hawking", "steve.hawk@gmail.com",
-                "(310) 689-1324", "4200 Wilshire Blvd", "", "Los Angeles", "CA",
-                "90025", orderLines2, new BigDecimal("300"), new BigDecimal("500"),
-                new BigDecimal("13500"), new BigDecimal("14300"));
+        Order order1 = new Order(1L, LocalDate.of(2019, 4, 28), Status.PROCESSING, "Albert",
+                "Einsten", "albert@gmail.com", "2134541324", address1, orderLines1, new BigDecimal("200"),
+                new BigDecimal("300"), new BigDecimal("11000"), new BigDecimal("11500"));
 
-        Order order3 = new Order(3L, LocalDate.of(2021, 8, 15),  Status.CANCELED, "Nikola", "Tesla", "nik.tesla@gmail.com",
-                "+1 213 454 1456", "4545 Wilshire Blvd", "Apt 3", "Los Angeles", "CA",
-                "90025", orderLines3, new BigDecimal("100"), new BigDecimal("200"),
-                new BigDecimal("1200"), new BigDecimal("1500"));
+        Order order2 = new Order(2L, LocalDate.of(2020, 5, 20), Status.COMPLETED, "Stephen",
+                "Hawking", "steve.hawk@gmail.com", "(310) 689-1324", address2, orderLines2, new BigDecimal("300"),
+                new BigDecimal("500"), new BigDecimal("13500"), new BigDecimal("14300"));
+
+        Order order3 = new Order(3L, LocalDate.of(2021, 8, 15),  Status.CANCELED, "Nikola",
+                "Tesla", "nik.tesla@gmail.com", "+1 213 454 1456", address3, orderLines3, new BigDecimal("100"),
+                new BigDecimal("200"), new BigDecimal("1200"), new BigDecimal("1500"));
 
         return args -> {
             log.info("Preloading " + repository.save(order1));

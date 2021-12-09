@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.goviesco.orders.assembler.OrderModelAssembler;
 import com.goviesco.orders.controller.OrderController;
+import com.goviesco.orders.entity.Address;
 import com.goviesco.orders.entity.Order;
 import com.goviesco.orders.entity.OrderLine;
 import com.goviesco.orders.enumeration.Status;
@@ -43,7 +44,7 @@ public class OrderControllerTests {
     private OrderRepository repository;
 
 
-    private List<OrderLine> orderLines1 = new ArrayList<>();
+    private final List<OrderLine> orderLines1 = new ArrayList<>();
 
 
     @BeforeEach
@@ -59,9 +60,11 @@ public class OrderControllerTests {
 
     @Test
     public void cancelCanceledOrderShouldCreateProblem() throws Exception {
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+
         Order order = new Order(1L, Status.CANCELED, "Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         given(repository.findById(1L)).willReturn(
                 java.util.Optional.of(order)
@@ -79,9 +82,11 @@ public class OrderControllerTests {
 
     @Test
     public void cancelCompletedOrderShouldCreateProblem() throws Exception {
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+
         Order order = new Order(1L, Status.COMPLETED, "Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         given(repository.findById(1L)).willReturn(
                 java.util.Optional.of(order)
@@ -99,9 +104,11 @@ public class OrderControllerTests {
 
     @Test
     public void completeCompletedOrderShouldCreateProblem() throws Exception {
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+
         Order order = new Order(1L, Status.COMPLETED, "Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         given(repository.findById(1L))
                 .willReturn(java.util.Optional.of(order));
@@ -118,9 +125,11 @@ public class OrderControllerTests {
 
     @Test
     public void completeCanceledOrderShouldCreateProblem() throws Exception {
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+
         Order order = new Order(1L, Status.CANCELED, "Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         given(repository.findById(1L))
                 .willReturn(java.util.Optional.of(order));
@@ -137,13 +146,15 @@ public class OrderControllerTests {
 
     @Test
     public void completeShouldUpdateOrderStatusFromProcessingToComplete() throws Exception {
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+
         Order order = new Order(1L, Status.PROCESSING, "Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         Order order1 = new Order(1L, Status.COMPLETED,"Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         given(repository.findById(1L))
                 .willReturn(java.util.Optional.of(order));
@@ -160,11 +171,11 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$.status", is("COMPLETED")))
                 .andExpect(jsonPath("$.firstName", is("Marie")))
                 .andExpect(jsonPath("$.lastName", is("Curie")))
-                .andExpect(jsonPath("$.address1", is("2213 Camelback Rd")))
-                .andExpect(jsonPath("$.address2", is("Apt 2")))
-                .andExpect(jsonPath("$.city", is("Phoenix")))
-                .andExpect(jsonPath("$.state", is("AZ")))
-                .andExpect(jsonPath("$.zip", is("85017")))
+                .andExpect(jsonPath("$.address.address1", is("2213 Camelback Rd")))
+                .andExpect(jsonPath("$.address.address2", is("Apt 2")))
+                .andExpect(jsonPath("$.address.city", is("Phoenix")))
+                .andExpect(jsonPath("$.address.state", is("AZ")))
+                .andExpect(jsonPath("$.address.zip", is("85017")))
                 .andExpect(jsonPath("$.orderLines[0].id", is(1)))
                 .andExpect(jsonPath("$.orderLines[0].brand", is("Apple")))
                 .andExpect(jsonPath("$.orderLines[0].model", is("Phone")))
@@ -181,13 +192,15 @@ public class OrderControllerTests {
 
     @Test
     public void cancelShouldUpdateOrderStatusFromProcessingToCanceled() throws Exception {
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+
         Order order = new Order(1L, Status.PROCESSING, "Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("1000"), new BigDecimal("50"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("1000"),
+                new BigDecimal("50"), new BigDecimal("1150"));
 
         Order order1 = new Order(1L, Status.CANCELED,"Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         given(repository.findById(1L))
                 .willReturn(java.util.Optional.of(order));
@@ -204,11 +217,11 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$.status", is("CANCELED")))
                 .andExpect(jsonPath("$.firstName", is("Marie")))
                 .andExpect(jsonPath("$.lastName", is("Curie")))
-                .andExpect(jsonPath("$.address1", is("2213 Camelback Rd")))
-                .andExpect(jsonPath("$.address2", is("Apt 2")))
-                .andExpect(jsonPath("$.city", is("Phoenix")))
-                .andExpect(jsonPath("$.state", is("AZ")))
-                .andExpect(jsonPath("$.zip", is("85017")))
+                .andExpect(jsonPath("$.address.address1", is("2213 Camelback Rd")))
+                .andExpect(jsonPath("$.address.address2", is("Apt 2")))
+                .andExpect(jsonPath("$.address.city", is("Phoenix")))
+                .andExpect(jsonPath("$.address.state", is("AZ")))
+                .andExpect(jsonPath("$.address.zip", is("85017")))
                 .andExpect(jsonPath("$.orderLines[0].id", is(1)))
                 .andExpect(jsonPath("$.orderLines[0].brand", is("Apple")))
                 .andExpect(jsonPath("$.orderLines[0].model", is("Phone")))
@@ -225,17 +238,19 @@ public class OrderControllerTests {
 
     @Test
     public void updateShouldUpdateOrder() throws Exception {
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+
         Order order = new Order(1L, Status.PROCESSING, "Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         OrderLine orderLine2 = new OrderLine(2L, "LG", "Phone", new BigDecimal("200"), 1);
         List<OrderLine> orderLines2 = new ArrayList<>();
         orderLines2.add(orderLine2);
 
         Order order2 = new Order(1L, Status.PROCESSING,"Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines2, new BigDecimal("20"), new BigDecimal("25"), new BigDecimal("200"), new BigDecimal("245"));
+                "2134543245", address, orderLines2, new BigDecimal("20"), new BigDecimal("25"),
+                new BigDecimal("200"), new BigDecimal("245"));
 
         given(repository.findById(1L))
                 .willReturn(java.util.Optional.of(order));
@@ -249,11 +264,13 @@ public class OrderControllerTests {
                                 "    \"firstName\": \"Marie\",\n" +
                                 "    \"lastName\": \"Curie\",\n" +
                                 "    \"email\": \"marie.curie@gmail.com\",\n" +
-                                "    \"address1\": \"2213 Camelback Rd\",\n" +
-                                "    \"address2\": \"Apt 2\",\n" +
-                                "    \"city\": \"Phoenix\",\n" +
-                                "    \"state\": \"AZ\",\n" +
-                                "    \"zip\": \"85017\",\n" +
+                                "    \"address\": {\n" +
+                                "        \"address1\": \"2213 Camelback Rd\",\n" +
+                                "        \"address2\": \"Apt 2\",\n" +
+                                "        \"city\": \"Phoenix\",\n" +
+                                "        \"state\": \"AZ\",\n" +
+                                "        \"zip\": \"85017\"\n" +
+                                "    },\n" +
                                 "    \"orderLines\": [\n" +
                                 "        {\n" +
                                 "            \"brand\": \"LG\",\n" +
@@ -275,11 +292,11 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$.status", is("PROCESSING")))
                 .andExpect(jsonPath("$.firstName", is("Marie")))
                 .andExpect(jsonPath("$.lastName", is("Curie")))
-                .andExpect(jsonPath("$.address1", is("2213 Camelback Rd")))
-                .andExpect(jsonPath("$.address2", is("Apt 2")))
-                .andExpect(jsonPath("$.city", is("Phoenix")))
-                .andExpect(jsonPath("$.state", is("AZ")))
-                .andExpect(jsonPath("$.zip", is("85017")))
+                .andExpect(jsonPath("$.address.address1", is("2213 Camelback Rd")))
+                .andExpect(jsonPath("$.address.address2", is("Apt 2")))
+                .andExpect(jsonPath("$.address.city", is("Phoenix")))
+                .andExpect(jsonPath("$.address.state", is("AZ")))
+                .andExpect(jsonPath("$.address.zip", is("85017")))
                 .andExpect(jsonPath("$.orderLines[0].id", is(2)))
                 .andExpect(jsonPath("$.orderLines[0].brand", is("LG")))
                 .andExpect(jsonPath("$.orderLines[0].model", is("Phone")))
@@ -298,9 +315,11 @@ public class OrderControllerTests {
 
     @Test
     public void createShouldCreateOrder() throws Exception {
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+
         Order order = new Order(1L, Status.PROCESSING,"Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         given(repository.save(ArgumentMatchers.any(Order.class)))
                 .willReturn(order);
@@ -311,11 +330,13 @@ public class OrderControllerTests {
                                 "    \"firstName\": \"Marie\",\n" +
                                 "    \"lastName\": \"Curie\",\n" +
                                 "    \"email\": \"marie.curie@gmail.com\",\n" +
-                                "    \"address1\": \"2213 Camelback Rd\",\n" +
-                                "    \"address2\": \"Apt 2\",\n" +
-                                "    \"city\": \"Phoenix\",\n" +
-                                "    \"state\": \"AZ\",\n" +
-                                "    \"zip\": \"85017\",\n" +
+                                "    \"address\": {\n" +
+                                "        \"address1\": \"2213 Camelback Rd\",\n" +
+                                "        \"address2\": \"Apt 2\",\n" +
+                                "        \"city\": \"Phoenix\",\n" +
+                                "        \"state\": \"AZ\",\n" +
+                                "        \"zip\": \"85017\"\n" +
+                                "    },\n" +
                                 "    \"orderLines\": [\n" +
                                 "        {\n" +
                                 "            \"brand\": \"Apple\",\n" +
@@ -337,11 +358,11 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$.status", is("PROCESSING")))
                 .andExpect(jsonPath("$.firstName", is("Marie")))
                 .andExpect(jsonPath("$.lastName", is("Curie")))
-                .andExpect(jsonPath("$.address1", is("2213 Camelback Rd")))
-                .andExpect(jsonPath("$.address2", is("Apt 2")))
-                .andExpect(jsonPath("$.city", is("Phoenix")))
-                .andExpect(jsonPath("$.state", is("AZ")))
-                .andExpect(jsonPath("$.zip", is("85017")))
+                .andExpect(jsonPath("$.address.address1", is("2213 Camelback Rd")))
+                .andExpect(jsonPath("$.address.address2", is("Apt 2")))
+                .andExpect(jsonPath("$.address.city", is("Phoenix")))
+                .andExpect(jsonPath("$.address.state", is("AZ")))
+                .andExpect(jsonPath("$.address.zip", is("85017")))
                 .andExpect(jsonPath("$.orderLines[0].id", is(1)))
                 .andExpect(jsonPath("$.orderLines[0].brand", is("Apple")))
                 .andExpect(jsonPath("$.orderLines[0].model", is("Phone")))
@@ -360,9 +381,11 @@ public class OrderControllerTests {
 
     @Test
     public void readShouldReadOrder() throws Exception {
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+
         Order order = new Order(1L, Status.PROCESSING, "Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         given(repository.findById(1L))
                 .willReturn(java.util.Optional.of(order));
@@ -376,11 +399,11 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$.status", is("PROCESSING")))
                 .andExpect(jsonPath("$.firstName", is("Marie")))
                 .andExpect(jsonPath("$.lastName", is("Curie")))
-                .andExpect(jsonPath("$.address1", is("2213 Camelback Rd")))
-                .andExpect(jsonPath("$.address2", is("Apt 2")))
-                .andExpect(jsonPath("$.city", is("Phoenix")))
-                .andExpect(jsonPath("$.state", is("AZ")))
-                .andExpect(jsonPath("$.zip", is("85017")))
+                .andExpect(jsonPath("$.address.address1", is("2213 Camelback Rd")))
+                .andExpect(jsonPath("$.address.address2", is("Apt 2")))
+                .andExpect(jsonPath("$.address.city", is("Phoenix")))
+                .andExpect(jsonPath("$.address.state", is("AZ")))
+                .andExpect(jsonPath("$.address.zip", is("85017")))
                 .andExpect(jsonPath("$.orderLines[0].id", is(1)))
                 .andExpect(jsonPath("$.orderLines[0].brand", is("Apple")))
                 .andExpect(jsonPath("$.orderLines[0].model", is("Phone")))
@@ -407,17 +430,21 @@ public class OrderControllerTests {
         orderLines2.add(orderLine2);
         orderLines3.add(orderLine3);
 
+        Address address = new Address(1L, "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017");
+        Address address2 = new Address(2L, "4200 Wilshire Blvd", "", "Los Angeles", "CA", "90025");
+        Address address3 = new Address(3L, "4545 Wilshire Blvd", "Apt 3", "Los Angeles", "CA", "90025");
+
         Order order = new Order(1L, Status.PROCESSING,"Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+                "2134543245", address, orderLines1, new BigDecimal("100"), new BigDecimal("50"),
+                new BigDecimal("1000"), new BigDecimal("1150"));
 
         Order order2 = new Order(2L, Status.COMPLETED,"Rosalind", "Franklin", "rosalind.franklin@gmail.com",
-                "2135673245", "4200 Wilshire Blvd", "", "Los Angeles", "CA", "90025",
-                orderLines2, new BigDecimal("1000"), new BigDecimal("200"), new BigDecimal("10000"), new BigDecimal("11200"));
+                "2135673245", address2, orderLines2, new BigDecimal("1000"), new BigDecimal("200"),
+                new BigDecimal("10000"), new BigDecimal("11200"));
 
         Order order3 = new Order(3L, Status.CANCELED,"Nikola", "Tesla", "nikola.tesla@gmail.com",
-                "2133233245", "4545 Wilshire Blvd", "Apt 3", "Los Angeles", "CA", "90025",
-                orderLines3, new BigDecimal("500"), new BigDecimal("300"), new BigDecimal("3500"), new BigDecimal("4300"));
+                "2133233245", address3, orderLines3, new BigDecimal("500"), new BigDecimal("300"),
+                new BigDecimal("3500"), new BigDecimal("4300"));
 
         given(repository.findAll())
                 .willReturn(Arrays.asList(order, order2, order3));
@@ -430,11 +457,11 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$._embedded.orderList[0].status", is("PROCESSING")))
                 .andExpect(jsonPath("$._embedded.orderList[0].firstName", is("Marie")))
                 .andExpect(jsonPath("$._embedded.orderList[0].lastName", is("Curie")))
-                .andExpect(jsonPath("$._embedded.orderList[0].address1", is("2213 Camelback Rd")))
-                .andExpect(jsonPath("$._embedded.orderList[0].address2", is("Apt 2")))
-                .andExpect(jsonPath("$._embedded.orderList[0].city", is("Phoenix")))
-                .andExpect(jsonPath("$._embedded.orderList[0].state", is("AZ")))
-                .andExpect(jsonPath("$._embedded.orderList[0].zip", is("85017")))
+                .andExpect(jsonPath("$._embedded.orderList[0].address.address1", is("2213 Camelback Rd")))
+                .andExpect(jsonPath("$._embedded.orderList[0].address.address2", is("Apt 2")))
+                .andExpect(jsonPath("$._embedded.orderList[0].address.city", is("Phoenix")))
+                .andExpect(jsonPath("$._embedded.orderList[0].address.state", is("AZ")))
+                .andExpect(jsonPath("$._embedded.orderList[0].address.zip", is("85017")))
                 .andExpect(jsonPath("$._embedded.orderList[0].orderLines[0].id", is(1)))
                 .andExpect(jsonPath("$._embedded.orderList[0].orderLines[0].brand", is("Apple")))
                 .andExpect(jsonPath("$._embedded.orderList[0].orderLines[0].model", is("Phone")))
@@ -453,11 +480,11 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$._embedded.orderList[1].status", is("COMPLETED")))
                 .andExpect(jsonPath("$._embedded.orderList[1].firstName", is("Rosalind")))
                 .andExpect(jsonPath("$._embedded.orderList[1].lastName", is("Franklin")))
-                .andExpect(jsonPath("$._embedded.orderList[1].address1", is("4200 Wilshire Blvd")))
-                .andExpect(jsonPath("$._embedded.orderList[1].address2", is("")))
-                .andExpect(jsonPath("$._embedded.orderList[1].city", is("Los Angeles")))
-                .andExpect(jsonPath("$._embedded.orderList[1].state", is("CA")))
-                .andExpect(jsonPath("$._embedded.orderList[1].zip", is("90025")))
+                .andExpect(jsonPath("$._embedded.orderList[1].address.address1", is("4200 Wilshire Blvd")))
+                .andExpect(jsonPath("$._embedded.orderList[1].address.address2", is("")))
+                .andExpect(jsonPath("$._embedded.orderList[1].address.city", is("Los Angeles")))
+                .andExpect(jsonPath("$._embedded.orderList[1].address.state", is("CA")))
+                .andExpect(jsonPath("$._embedded.orderList[1].address.zip", is("90025")))
                 .andExpect(jsonPath("$._embedded.orderList[1].orderLines[0].id", is(2)))
                 .andExpect(jsonPath("$._embedded.orderList[1].orderLines[0].brand", is("Dell")))
                 .andExpect(jsonPath("$._embedded.orderList[1].orderLines[0].model", is("Tablet")))
@@ -474,11 +501,11 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$._embedded.orderList[2].status", is("CANCELED")))
                 .andExpect(jsonPath("$._embedded.orderList[2].firstName", is("Nikola")))
                 .andExpect(jsonPath("$._embedded.orderList[2].lastName", is("Tesla")))
-                .andExpect(jsonPath("$._embedded.orderList[2].address1", is("4545 Wilshire Blvd")))
-                .andExpect(jsonPath("$._embedded.orderList[2].address2", is("Apt 3")))
-                .andExpect(jsonPath("$._embedded.orderList[2].city", is("Los Angeles")))
-                .andExpect(jsonPath("$._embedded.orderList[2].state", is("CA")))
-                .andExpect(jsonPath("$._embedded.orderList[2].zip", is("90025")))
+                .andExpect(jsonPath("$._embedded.orderList[2].address.address1", is("4545 Wilshire Blvd")))
+                .andExpect(jsonPath("$._embedded.orderList[2].address.address2", is("Apt 3")))
+                .andExpect(jsonPath("$._embedded.orderList[2].address.city", is("Los Angeles")))
+                .andExpect(jsonPath("$._embedded.orderList[2].address.state", is("CA")))
+                .andExpect(jsonPath("$._embedded.orderList[2].address.zip", is("90025")))
                 .andExpect(jsonPath("$._embedded.orderList[2].orderLines[0].id", is(3)))
                 .andExpect(jsonPath("$._embedded.orderList[2].orderLines[0].brand", is("Samsung")))
                 .andExpect(jsonPath("$._embedded.orderList[2].orderLines[0].model", is("Watch")))
@@ -556,13 +583,73 @@ public class OrderControllerTests {
     }
 
     @Test
-    public void missingRequiredFieldsShouldReturnValidationRequiredMessages() throws Exception {
-        Order order = new Order(1L, Status.PROCESSING,"Marie", "Curie", "marie.curie@gmail.com",
-                "2134543245", "2213 Camelback Rd", "Apt 2", "Phoenix", "AZ", "85017",
-                orderLines1, new BigDecimal("100"), new BigDecimal("50"), new BigDecimal("1000"), new BigDecimal("1150"));
+    public void postMissingRequiredFieldsShouldReturnValidationRequiredMessages() throws Exception {
 
-        given(repository.save(ArgumentMatchers.any(Order.class)))
-                .willReturn(order);
+        mvc.perform(post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "    \"orderLines\": [\n" +
+                                "        {\n" +
+                                "        }\n" +
+                                "    ],\n" +
+                                "    \"address\": {\n" +
+                                "    }\n" +
+                                "}")
+                        .accept(MediaTypes.HAL_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("$.firstName", is("First name is required.")))
+                .andExpect(jsonPath("$.lastName", is("Last name is required.")))
+                .andExpect(jsonPath("$.email", is("Email is required.")))
+                .andExpect(jsonPath("$.shipping", is("Shipping is required.")))
+                .andExpect(jsonPath("$.tax", is("Tax is required.")))
+                .andExpect(jsonPath("$.['address.address1']", is("Address1 is required.")))
+                .andExpect(jsonPath("$.['address.city']", is("City is required.")))
+                .andExpect(jsonPath("$.['address.state']", is("State is required.")))
+                .andExpect(jsonPath("$.['address.zip']", is("Zip code is required.")))
+                .andExpect(jsonPath("$.['orderLines[0].brand']", is("Brand is required.")))
+                .andExpect(jsonPath("$.['orderLines[0].model']", is("Model is required.")))
+                .andExpect(jsonPath("$.['orderLines[0].cost']", is("Cost is required.")))
+                .andExpect(jsonPath("$.['orderLines[0].quantity']", is("Quantity is required.")))
+                .andReturn();
+    }
+
+    @Test
+    public void putMissingRequiredFieldsShouldReturnValidationRequiredMessages() throws Exception {
+
+        mvc.perform(put("/orders/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "    \"orderLines\": [\n" +
+                                "        {\n" +
+                                "        }\n" +
+                                "    ],\n" +
+                                "    \"address\": {\n" +
+                                "    }\n" +
+                                "}")
+                        .accept(MediaTypes.HAL_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("$.firstName", is("First name is required.")))
+                .andExpect(jsonPath("$.lastName", is("Last name is required.")))
+                .andExpect(jsonPath("$.email", is("Email is required.")))
+                .andExpect(jsonPath("$.shipping", is("Shipping is required.")))
+                .andExpect(jsonPath("$.tax", is("Tax is required.")))
+                .andExpect(jsonPath("$.['address.address1']", is("Address1 is required.")))
+                .andExpect(jsonPath("$.['address.city']", is("City is required.")))
+                .andExpect(jsonPath("$.['address.state']", is("State is required.")))
+                .andExpect(jsonPath("$.['address.zip']", is("Zip code is required.")))
+                .andExpect(jsonPath("$.['orderLines[0].brand']", is("Brand is required.")))
+                .andExpect(jsonPath("$.['orderLines[0].model']", is("Model is required.")))
+                .andExpect(jsonPath("$.['orderLines[0].cost']", is("Cost is required.")))
+                .andExpect(jsonPath("$.['orderLines[0].quantity']", is("Quantity is required.")))
+                .andReturn();
+    }
+
+    @Test
+    public void postEmptyJsonShouldReturnValidationRequiredMessages() throws Exception {
 
         mvc.perform(post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -576,10 +663,128 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$.email", is("Email is required.")))
                 .andExpect(jsonPath("$.shipping", is("Shipping is required.")))
                 .andExpect(jsonPath("$.tax", is("Tax is required.")))
-                .andExpect(jsonPath("$.address1", is("Address1 is required.")))
-                .andExpect(jsonPath("$.city", is("City is required.")))
-                .andExpect(jsonPath("$.state", is("State is required.")))
-                .andExpect(jsonPath("$.zip", is("Zip code is required.")))
+                .andExpect(jsonPath("$.['address']", is("Address is required.")))
+                .andExpect(jsonPath("$.['orderLines']", is("Order lines is required.")))
+                .andReturn();
+    }
+
+    @Test
+    public void putEmptyJsonShouldReturnValidationRequiredMessages() throws Exception {
+
+        mvc.perform(put("/orders/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}")
+                        .accept(MediaTypes.HAL_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("$.firstName", is("First name is required.")))
+                .andExpect(jsonPath("$.lastName", is("Last name is required.")))
+                .andExpect(jsonPath("$.email", is("Email is required.")))
+                .andExpect(jsonPath("$.shipping", is("Shipping is required.")))
+                .andExpect(jsonPath("$.tax", is("Tax is required.")))
+                .andExpect(jsonPath("$.['address']", is("Address is required.")))
+                .andExpect(jsonPath("$.['orderLines']", is("Order lines is required.")))
+                .andReturn();
+    }
+
+    @Test
+    public void postInvalidInputReturnValidationMessages() throws Exception {
+
+        mvc.perform(post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "    \"firstName\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "    \"lastName\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "    \"email\": \"invalidEmail\",\n" +
+                                "    \"phone\": \"invalidPhone\",\n" +
+                                "    \"address\": {\n" +
+                                "        \"address1\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "        \"address2\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "        \"city\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "        \"state\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "        \"zip\": \"This is more than twenty five characters, even more than 50!\"\n" +
+                                "    },\n" +
+                                "    \"orderLines\": [\n" +
+                                "        {\n" +
+                                "            \"brand\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "            \"model\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "            \"cost\": -1000,\n" +
+                                "            \"quantity\": -1\n" +
+                                "        }\n" +
+                                "    ],\n" +
+                                "    \"tax\": -100,\n" +
+                                "    \"shipping\": -50\n" +
+                                "}")
+                        .accept(MediaTypes.HAL_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("$.firstName", is("First name cannot be greater than 25 characters.")))
+                .andExpect(jsonPath("$.lastName", is("Last name cannot be greater than 25 characters.")))
+                .andExpect(jsonPath("$.email", is("Email format is invalid.")))
+                .andExpect(jsonPath("$.phone", is("Phone number format is invalid. Valid formats include (but are not limited to) 2134541324, (213) 454-1324, and +111 (213) 454-1324.")))
+                .andExpect(jsonPath("$.shipping", is("Shipping must be positive or zero.")))
+                .andExpect(jsonPath("$.tax", is("Tax must be positive or zero.")))
+                .andExpect(jsonPath("$.['address.address1']", is("Address1 must be less than 50 characters, inclusive.")))
+                .andExpect(jsonPath("$.['address.address2']", is("Address2 must be less than 25 characters, inclusive.")))
+                .andExpect(jsonPath("$.['address.city']", is("City must be between 1 and 25 characters, inclusive.")))
+                .andExpect(jsonPath("$.['address.state']", is("State must be 2 characters.")))
+                .andExpect(jsonPath("$.['address.zip']", is("Zip code must be between 5 and 10 characters, inclusive.")))
+                .andExpect(jsonPath("$.['orderLines[0].brand']", is("Brand must be between 1 and 25 characters, inclusive.")))
+                .andExpect(jsonPath("$.['orderLines[0].model']", is("Model must be between 1 and 25 characters, inclusive.")))
+                .andExpect(jsonPath("$.['orderLines[0].cost']", is("Cost must be positive or zero.")))
+                .andExpect(jsonPath("$.['orderLines[0].quantity']", is("Quantity must be positive or zero.")))
+                .andReturn();
+    }
+
+    @Test
+    public void putInvalidInputReturnValidationMessages() throws Exception {
+
+        mvc.perform(put("/orders/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "    \"firstName\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "    \"lastName\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "    \"email\": \"invalidEmail\",\n" +
+                                "    \"phone\": \"invalidPhone\",\n" +
+                                "    \"address\": {\n" +
+                                "        \"address1\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "        \"address2\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "        \"city\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "        \"state\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "        \"zip\": \"This is more than twenty five characters, even more than 50!\"\n" +
+                                "    },\n" +
+                                "    \"orderLines\": [\n" +
+                                "        {\n" +
+                                "            \"brand\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "            \"model\": \"This is more than twenty five characters, even more than 50!\",\n" +
+                                "            \"cost\": -1000,\n" +
+                                "            \"quantity\": -1\n" +
+                                "        }\n" +
+                                "    ],\n" +
+                                "    \"tax\": -100,\n" +
+                                "    \"shipping\": -50\n" +
+                                "}")
+                        .accept(MediaTypes.HAL_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("$.firstName", is("First name cannot be greater than 25 characters.")))
+                .andExpect(jsonPath("$.lastName", is("Last name cannot be greater than 25 characters.")))
+                .andExpect(jsonPath("$.email", is("Email format is invalid.")))
+                .andExpect(jsonPath("$.phone", is("Phone number format is invalid. Valid formats include (but are not limited to) 2134541324, (213) 454-1324, and +111 (213) 454-1324.")))
+                .andExpect(jsonPath("$.shipping", is("Shipping must be positive or zero.")))
+                .andExpect(jsonPath("$.tax", is("Tax must be positive or zero.")))
+                .andExpect(jsonPath("$.['address.address1']", is("Address1 must be less than 50 characters, inclusive.")))
+                .andExpect(jsonPath("$.['address.address2']", is("Address2 must be less than 25 characters, inclusive.")))
+                .andExpect(jsonPath("$.['address.city']", is("City must be between 1 and 25 characters, inclusive.")))
+                .andExpect(jsonPath("$.['address.state']", is("State must be 2 characters.")))
+                .andExpect(jsonPath("$.['address.zip']", is("Zip code must be between 5 and 10 characters, inclusive.")))
+                .andExpect(jsonPath("$.['orderLines[0].brand']", is("Brand must be between 1 and 25 characters, inclusive.")))
+                .andExpect(jsonPath("$.['orderLines[0].model']", is("Model must be between 1 and 25 characters, inclusive.")))
+                .andExpect(jsonPath("$.['orderLines[0].cost']", is("Cost must be positive or zero.")))
+                .andExpect(jsonPath("$.['orderLines[0].quantity']", is("Quantity must be positive or zero.")))
                 .andReturn();
     }
 
@@ -595,11 +800,13 @@ public class OrderControllerTests {
                                 "    \"firstName\": \"Marie\",\n" +
                                 "    \"lastName\": \"Curie\",\n" +
                                 "    \"email\": \"marie.curie@gmail.com\",\n" +
-                                "    \"address1\": \"4545 Wilshire Blvd\",\n" +
-                                "    \"address2\": \"Apt 3\",\n" +
-                                "    \"city\": \"Los Angeles\",\n" +
-                                "    \"state\": \"CA\",\n" +
-                                "    \"zip\": \"90025\",\n" +
+                                "    \"address\": {\n" +
+                                "        \"address1\": \"2213 Camelback Rd\",\n" +
+                                "        \"address2\": \"Apt 2\",\n" +
+                                "        \"city\": \"Phoenix\",\n" +
+                                "        \"state\": \"AZ\",\n" +
+                                "        \"zip\": \"85017\"\n" +
+                                "    },\n" +
                                 "    \"orderLines\": [\n" +
                                 "        {\n" +
                                 "            \"brand\": \"LG\",\n" +
