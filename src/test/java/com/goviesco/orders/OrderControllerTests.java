@@ -13,9 +13,8 @@ import com.goviesco.orders.entity.Address;
 import com.goviesco.orders.entity.Order;
 import com.goviesco.orders.entity.OrderLine;
 import com.goviesco.orders.enumeration.Status;
-import com.goviesco.orders.repository.OrderRepository;
+import com.goviesco.orders.service.OrderService;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -41,7 +40,7 @@ public class OrderControllerTests {
     private MockMvc mvc;
 
     @MockBean //  flags OrderRepository as a test collaborator.
-    private OrderRepository repository;
+    private OrderService repository;
 
 
     private final List<OrderLine> orderLines1 = new ArrayList<>();

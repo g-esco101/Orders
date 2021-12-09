@@ -5,6 +5,7 @@ import com.goviesco.orders.entity.Order;
 import com.goviesco.orders.enumeration.Status;
 import com.goviesco.orders.exception.OrderNotFoundException;
 import com.goviesco.orders.repository.OrderRepository;
+import com.goviesco.orders.service.OrderService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -31,11 +32,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 public class OrderController {
 
-    private final OrderRepository repository;
+    private final OrderService service;
     private final OrderModelAssembler assembler;
 
-    public OrderController(OrderRepository repository, OrderModelAssembler assembler) {
-        this.repository = repository;
+    public OrderController(OrderService service, OrderModelAssembler assembler) {
+        this.service = service;
         this.assembler = assembler;
     }
 
@@ -46,7 +47,7 @@ public class OrderController {
                     "and CANCELED. Status cannot be changed if it is set to COMPLETED or CANCELED.")
     @GetMapping("/orders")
     public ResponseEntity<CollectionModel<EntityModel<Order>>> readAll() {
-        return ResponseEntity.ok(assembler.toCollectionModel(repository.findAll())
+        return ResponseEntity.ok(assembler.toCollectionModel(service.findAll())
                 .add(linkTo(methodOn(OrderController.class).readAll()).withSelfRel()));
     }
 
@@ -56,7 +57,7 @@ public class OrderController {
     public ResponseEntity<EntityModel<Order>> create(@Valid @RequestBody Order order) {
         order.setStatus(Status.PROCESSING);
         order.setDate(LocalDate.now());
-        Order newOrder = repository.save(order);
+        Order newOrder = service.save(order);
 
         return ResponseEntity
                 .created(linkTo(methodOn(OrderController.class).read(newOrder.getId())).toUri())
@@ -68,7 +69,7 @@ public class OrderController {
                             "and CANCELED. Status cannot be changed if it is set to COMPLETED or CANCELED.")
     @GetMapping("/orders/{id}")
     public ResponseEntity<EntityModel<Order>> read(@PathVariable Long id) {
-        return repository.findById(id)
+        return service.findById(id)
                 .map(assembler::toModel)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new OrderNotFoundException(id));
@@ -77,7 +78,7 @@ public class OrderController {
     @ApiOperation(value = "Updates the order with the id or else throws OrderNotFoundException")
     @PutMapping("/orders/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody Order newOrder, @PathVariable Long id) {
-        Order updatedOrder = repository.findById(id)
+        Order updatedOrder = service.findById(id)
                 .map(order -> {
                     order.setStatus(newOrder.getStatus());
                     order.setFirstName(newOrder.getFirstName());
@@ -90,7 +91,7 @@ public class OrderController {
                     order.getOrderLines().addAll(newOrder.getOrderLines());
                     order.setShipping(newOrder.getShipping());
                     order.setTax(newOrder.getTax());
-                    return repository.save(order);
+                    return service.save(order);
                 })
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
@@ -104,10 +105,10 @@ public class OrderController {
     @ApiOperation(value = "Removes the order with the id or else throws OrderNotFoundException")
     @DeleteMapping("/orders/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        Order order = repository.findById(id)
+        Order order = service.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
-        repository.delete(order);
+        service.delete(order);
         return ResponseEntity.noContent().build();
     }
 
@@ -116,12 +117,12 @@ public class OrderController {
     @PutMapping("/orders/{id}/cancel")
     public ResponseEntity<?> cancel(@PathVariable Long id) {
 
-        Order order = repository.findById(id)
+        Order order = service.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
         if (order.getStatus() == Status.PROCESSING) {
             order.setStatus(Status.CANCELED);
-            return ResponseEntity.ok(assembler.toModel(repository.save(order)));
+            return ResponseEntity.ok(assembler.toModel(service.save(order)));
         }
 
         return ResponseEntity
@@ -137,12 +138,12 @@ public class OrderController {
     @PutMapping("/orders/{id}/complete")
     public ResponseEntity<?> complete(@PathVariable Long id) {
 
-        Order order = repository.findById(id)
+        Order order = service.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
 
         if (order.getStatus() == Status.PROCESSING) {
             order.setStatus(Status.COMPLETED);
-            return ResponseEntity.ok(assembler.toModel(repository.save(order)));
+            return ResponseEntity.ok(assembler.toModel(service.save(order)));
         }
 
         return ResponseEntity
