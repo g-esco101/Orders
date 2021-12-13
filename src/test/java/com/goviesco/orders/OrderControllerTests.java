@@ -663,7 +663,6 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$.shipping", is("Shipping is required.")))
                 .andExpect(jsonPath("$.tax", is("Tax is required.")))
                 .andExpect(jsonPath("$.['address']", is("Address is required.")))
-                .andExpect(jsonPath("$.['orderLines']", is("Order lines is required.")))
                 .andReturn();
     }
 
@@ -683,7 +682,6 @@ public class OrderControllerTests {
                 .andExpect(jsonPath("$.shipping", is("Shipping is required.")))
                 .andExpect(jsonPath("$.tax", is("Tax is required.")))
                 .andExpect(jsonPath("$.['address']", is("Address is required.")))
-                .andExpect(jsonPath("$.['orderLines']", is("Order lines is required.")))
                 .andReturn();
     }
 

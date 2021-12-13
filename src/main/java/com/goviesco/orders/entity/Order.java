@@ -62,7 +62,6 @@ public class Order {
     private Address address;
 
     @Valid
-    @NotEmpty(message = "Order lines is required.")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderLine> orderLines;
 
