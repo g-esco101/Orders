@@ -9,12 +9,12 @@ import org.springframework.util.Assert;
 @SpringBootTest // Spring boot application is started inside the test.
 class OrdersApplicationTests {
 
-	@Autowired
-	OrderController orderController;
-
-	@Test
-	void contextLoads() {
-		Assert.notNull(orderController, "orderController is null.");
-	}
+//	@Autowired
+//	OrderController orderController;
+//
+//	@Test
+//	void contextLoads() {
+//		Assert.notNull(orderController, "orderController is null.");
+//	}
 
 }
