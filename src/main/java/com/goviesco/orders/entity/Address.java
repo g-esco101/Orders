@@ -30,7 +30,7 @@ public class Address {
     private String address2;
 
     @NotBlank(message = "City is required.")
-    @Size(min = 1, max = 50, message = "City must be between 1 and 25 characters, inclusive.")
+    @Size(min = 1, max = 25, message = "City must be between 1 and 25 characters, inclusive.")
     @Column(length = 25)
     private String city;
 
